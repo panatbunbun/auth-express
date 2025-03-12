@@ -24,7 +24,7 @@ services:
       PMA_USER: root
       PMA_PASSWORD: root
     ports:
-      - "8080:80"
+      - "8881:80"
     depends_on:
       - db
     networks:

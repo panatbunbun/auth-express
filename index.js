@@ -48,7 +48,7 @@ app.post('/api/register', async (req, res) => {
     email,
     password
   }
-  const [results] = await conn.query('INSERT INTO users SET ?', userData);
+  const [results] = await conn.query('INSERT INTO user SET ?', userData);
   res.json({ 
     message: 'Register success',
     results
