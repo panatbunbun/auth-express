@@ -12,8 +12,9 @@ app.use(
   cors({
     credentials: true,
     origin: ["http://localhost:8888", "http://127.0.0.1:5500"],
-  }),
+  })
 );
+
 app.use(cookieParser());
 
 app.use(
@@ -78,10 +79,22 @@ app.post('/api/login', async (req, res) => {
   }
 
   //สร้าง token jwt token
-  const token = jwt.sign({ email, role: 'Admin' }, secret, { expiresIn: '1h' });
+  //const token = jwt.sign({ email, role: 'Admin' }, secret, { expiresIn: '1h' });
+  //res.cookie('token', token, { 
+  //  maxAge: 300000,
+  //  secure: true,
+  //  httpOnly: true,
+  //  sameSite: 'None' 
+  //});
+
+  req.session.userId = userData.id;
+  req.session.user = userData;
+
+  console.log('req.session', req.session);
+
   res.json({ 
     message: 'Login success',
-    token
+    
   });
  } catch (error) {
   res.status(401).json ({
@@ -92,27 +105,34 @@ app.post('/api/login', async (req, res) => {
 
 app.get('/api/user', async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    let authToken = null;
-    if (authHeader) {
-      authToken = authHeader.split(' ')[1];
-    }
-    console.log('authToken', authToken);
-    const user = jwt.verify(authToken, secret);
-    console.log('user', user.email);
+    // const authHeader = req.headers.authorization;
+    //const authToken = req.cookies.token;
+    // let authToken = null;
+    // if (authHeader) {
+    //  authToken = authHeader.split(' ')[1];
+    // }
+    //console.log('authToken', authToken);
+    //const user = jwt.verify(authToken, secret);
+    //console.log('user', user.email);
+    //const [checkResults] = await conn.query('SELECT * FROM user WHERE email = ?', [user.email]);
+    //if (!checkResults[0]) {
+    //throw { message: 'not found user' }
+    //}
 
-    const [checkResults] = await conn.query('SELECT * FROM user WHERE email = ?', [user.email]);
-    if (!checkResults[0]) {
-      throw {message: 'not found user'}
+
+    if (!req.session.userId) {
+      throw { message: 'authentical failed' }
     }
+
+    console.log('session', req.session);
 
     const [results] = await conn.query('SELECT * FROM user');
     res.json({
       user: results
     })
   } catch (error) {
-    res.status(403).json ({
-      message: 'Authentical failed' , error
+    res.status(403).json({
+      message: 'Authentical failed', error
     })
   }
 })
